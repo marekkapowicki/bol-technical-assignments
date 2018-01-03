@@ -93,4 +93,50 @@ public class AggregatorServiceWithAsserJTest implements WithAssertions, WithBDDM
                 .hasOfferId(-1)
                 .hasOfferCondition(UNKNOWN);
     }
+
+    @Test
+    public void productServiceFailed() throws ExecutionException, InterruptedException {
+        //Given
+        given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
+        given(offerService.getOffer(offerId)).willReturn(new Offer(offerId, AS_NEW));
+        given(productService.getProduct(productId)).willThrow(new RuntimeException("Product Service failed"));
+
+        //When
+        EnrichedOrder enrichedOrder = aggregatorService.enrich(sellerId);
+
+        //Then
+        EnrichedOrderAssert.assertThat(enrichedOrder)
+                .hasId(orderId)
+                .hasNullProductTitle()
+                .hasOfferId(offerId)
+                .hasOfferCondition(AS_NEW);
+    }
+
+    @Test
+    public void productServiceAndOfferServiceFailed() throws ExecutionException, InterruptedException {
+        //Given
+        given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
+        given(offerService.getOffer(offerId)).willThrow(new RuntimeException("Offer Service failed"));
+        given(productService.getProduct(productId)).willThrow(new RuntimeException("Product Service failed"));
+
+        //When
+        EnrichedOrder enrichedOrder = aggregatorService.enrich(sellerId);
+
+        //Then
+        EnrichedOrderAssert.assertThat(enrichedOrder)
+                .hasId(orderId)
+                .hasNullProductTitle()
+                .hasOfferId(-1)
+                .hasOfferCondition(UNKNOWN);
+    }
+
+    @Test
+    public void orderServiceFailed() {
+        //Given
+        given(orderService.getOrder(sellerId)).willThrow(new RuntimeException("Order service failed"));
+
+        //Expect
+        assertThatThrownBy(() -> aggregatorService.enrich(sellerId))
+                .isInstanceOf(RuntimeException.class);
+    }
 }

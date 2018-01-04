@@ -6,18 +6,24 @@ import com.bol.test.assignment.order.Order;
 import com.bol.test.assignment.order.OrderService;
 import com.bol.test.assignment.product.Product;
 import com.bol.test.assignment.product.ProductService;
-import info.solidsoft.mockito.java8.api.WithBDDMockito;
-import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 import static com.bol.test.assignment.offer.OfferCondition.AS_NEW;
 import static com.bol.test.assignment.offer.OfferCondition.UNKNOWN;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+/**
+ * should be replaced by AggregatorServiceAssertJTest
+ */
+public class AggregatorServiceTest {
 
-public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
     private OrderService orderService = mock(OrderService.class);
 
     private OfferService offerService = mock(OfferService.class);
@@ -33,114 +39,83 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
     private final int productId = 4;
     private String title = "Title";
 
-
     @Test
-    public void simpleHappyFlow()  {
-        //Given
-        given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
-        given(offerService.getOffer(offerId)).willReturn(new Offer(offerId, AS_NEW));
-        given(productService.getProduct(productId)).willReturn(new Product(productId, title));
+    public void simpleHappyFlow() throws ExecutionException, InterruptedException {
+        when(orderService.getOrder(sellerId)).thenReturn(new Order(orderId, offerId, productId));
+        when(offerService.getOffer(offerId)).thenReturn(new Offer(offerId, AS_NEW));
+        when(productService.getProduct(productId)).thenReturn(new Product(productId, title));
 
-        //When
+
         EnrichedOrder enrichedOrder = aggregatorService.enrich(sellerId);
-
-        //Then
-        assertThat(enrichedOrder.getId()).isEqualTo(orderId);
-
+        assertThat(enrichedOrder.getId(), is(orderId));
     }
 
     @Test(timeout = 2000)
-    public void offerAndProductServicesAreSlow() {
-        //Given
-        given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
-        given(offerService.getOffer(offerId)).willAnswer(
+    public void offerAndProductServicesAreSlow() throws InterruptedException, ExecutionException {
+        when(orderService.getOrder(sellerId)).thenReturn(new Order(orderId, offerId, productId));
+        when(offerService.getOffer(offerId)).thenAnswer(
                 (InvocationOnMock invocationOnMock) -> {
-                    TimeUnit.MILLISECONDS.sleep(1500L);
+                    Thread.sleep(1500);
                     return new Offer(offerId, AS_NEW);
                 }
         );
-        given(productService.getProduct(productId)).willAnswer(
+        when(productService.getProduct(productId)).thenAnswer(
                 (InvocationOnMock invocationOnMock) -> {
-                    TimeUnit.MILLISECONDS.sleep(1500L);
+                    Thread.sleep(1500);
                     return new Product(productId, title);
                 }
         );
 
-        //When
-        EnrichedOrder enrichedOrder = aggregatorService.enrich(sellerId);
 
-        //Then
-        EnrichedOrderAssert.assertThat(enrichedOrder)
-                .hasId(orderId)
-                .hasOfferCondition(AS_NEW)
-                .hasProductId(productId)
-                .hasProductTitle(title);
+        EnrichedOrder enrichedOrder = aggregatorService.enrich(sellerId);
+        assertThat(enrichedOrder.getId(), is(orderId));
+        assertThat(enrichedOrder.getOfferCondition(), is(AS_NEW));
+        assertThat(enrichedOrder.getProductTitle(), is(title));
     }
 
     @Test
-    public void offerServiceFailed()  {
-        //Given
-        given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
-        given(offerService.getOffer(offerId)).willThrow(new RuntimeException("Offer Service failed"));
-        given(productService.getProduct(productId)).willReturn(new Product(productId, title));
+    public void offerServiceFailed() throws Exception {
+        when(orderService.getOrder(sellerId)).thenReturn(new Order(orderId, offerId, productId));
+        when(offerService.getOffer(offerId)).thenThrow(new RuntimeException("Offer Service failed"));
+        when(productService.getProduct(productId)).thenReturn(new Product(productId, title));
 
-        //When
         EnrichedOrder enrichedOrder = aggregatorService.enrich(sellerId);
-
-        //Then
-        EnrichedOrderAssert.assertThat(enrichedOrder)
-                .hasId(orderId)
-                .hasProductTitle(title)
-                .hasProductId(productId)
-                .hasOfferId(-1)
-                .hasOfferCondition(UNKNOWN);
+        assertThat(enrichedOrder.getId(), is(orderId));
+        assertThat(enrichedOrder.getProductTitle(), is(title));
+        assertThat(enrichedOrder.getOfferId(), is(-1));
+        assertThat(enrichedOrder.getOfferCondition(), is(UNKNOWN));
     }
 
     @Test
-    public void productServiceFailed() {
-        //Given
-        given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
-        given(offerService.getOffer(offerId)).willReturn(new Offer(offerId, AS_NEW));
-        given(productService.getProduct(productId)).willThrow(new RuntimeException("Product Service failed"));
+    public void productServiceFailed() throws Exception {
+        when(orderService.getOrder(sellerId)).thenReturn(new Order(orderId, offerId, productId));
+        when(offerService.getOffer(offerId)).thenReturn(new Offer(offerId, AS_NEW));
+        when(productService.getProduct(productId)).thenThrow(new RuntimeException("Product Service failed"));
 
-        //When
         EnrichedOrder enrichedOrder = aggregatorService.enrich(sellerId);
-
-        //Then
-        EnrichedOrderAssert.assertThat(enrichedOrder)
-                .hasId(orderId)
-                .hasNullProductTitle()
-                .hasProductId(-1)
-                .hasOfferId(offerId)
-                .hasOfferCondition(AS_NEW);
+        assertThat(enrichedOrder.getId(), is(orderId));
+        assertNull(enrichedOrder.getProductTitle());
+        assertThat(enrichedOrder.getOfferId(), is(offerId));
+        assertThat(enrichedOrder.getOfferCondition(), is(AS_NEW));
     }
 
     @Test
-    public void productServiceAndOfferServiceFailed() {
-        //Given
-        given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
-        given(offerService.getOffer(offerId)).willThrow(new RuntimeException("Offer Service failed"));
-        given(productService.getProduct(productId)).willThrow(new RuntimeException("Product Service failed"));
+    public void productServiceAndOfferServiceFailed() throws Exception {
+        when(orderService.getOrder(sellerId)).thenReturn(new Order(orderId, offerId, productId));
+        when(offerService.getOffer(offerId)).thenThrow(new RuntimeException("Offer Service failed"));
+        when(productService.getProduct(productId)).thenThrow(new RuntimeException("Product Service failed"));
 
-        //When
         EnrichedOrder enrichedOrder = aggregatorService.enrich(sellerId);
-
-        //Then
-        EnrichedOrderAssert.assertThat(enrichedOrder)
-                .hasId(orderId)
-                .hasNullProductTitle()
-                .hasProductId(-1)
-                .hasOfferId(-1)
-                .hasOfferCondition(UNKNOWN);
+        assertThat(enrichedOrder.getId(), is(orderId));
+        assertNull(enrichedOrder.getProductTitle());
+        assertThat(enrichedOrder.getOfferId(), is(-1));
+        assertThat(enrichedOrder.getOfferCondition(), is(UNKNOWN));
     }
 
-    @Test
-    public void orderServiceFailed() {
-        //Given
-        given(orderService.getOrder(sellerId)).willThrow(new RuntimeException("Order service failed"));
+    @Test(expected = RuntimeException.class)
+    public void orderServiceFailed() throws Exception {
+        when(orderService.getOrder(sellerId)).thenThrow(new RuntimeException("Order service failed"));
 
-        //Expect
-        assertThatThrownBy(() -> aggregatorService.enrich(sellerId))
-                .isInstanceOf(RuntimeException.class);
+        aggregatorService.enrich(sellerId);
     }
 }

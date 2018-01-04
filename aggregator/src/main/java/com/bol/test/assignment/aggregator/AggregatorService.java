@@ -9,18 +9,18 @@ import com.bol.test.assignment.product.ProductService;
 
 import java.util.concurrent.ExecutionException;
 
-public class AggregatorService {
-    private OrderService orderService;
-    private OfferService offerService;
-    private ProductService productService;
+class AggregatorService {
+    private final OrderService orderService;
+    private final OfferService offerService;
+    private final ProductService productService;
 
-    public AggregatorService(OrderService orderService, OfferService offerService, ProductService productService) {
+    AggregatorService(OrderService orderService, OfferService offerService, ProductService productService) {
         this.orderService = orderService;
         this.offerService = offerService;
         this.productService = productService;
     }
 
-    public EnrichedOrder enrich(int sellerId) throws ExecutionException, InterruptedException {
+    EnrichedOrder enrich(int sellerId) throws ExecutionException, InterruptedException {
         Order order = orderService.getOrder(sellerId);
         Offer offer = offerService.getOffer(order.getOfferId());
         Product product = productService.getProduct(order.getProductId());

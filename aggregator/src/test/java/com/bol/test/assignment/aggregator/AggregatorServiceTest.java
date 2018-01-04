@@ -11,7 +11,6 @@ import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static com.bol.test.assignment.offer.OfferCondition.AS_NEW;
@@ -36,7 +35,7 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
 
 
     @Test
-    public void simpleHappyFlow() throws ExecutionException, InterruptedException {
+    public void simpleHappyFlow()  {
         //Given
         given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
         given(offerService.getOffer(offerId)).willReturn(new Offer(offerId, AS_NEW));
@@ -51,7 +50,7 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
     }
 
     @Test(timeout = 2000)
-    public void offerAndProductServicesAreSlow() throws InterruptedException, ExecutionException {
+    public void offerAndProductServicesAreSlow() {
         //Given
         given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
         given(offerService.getOffer(offerId)).willAnswer(
@@ -78,7 +77,7 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
     }
 
     @Test
-    public void offerServiceFailed() throws ExecutionException, InterruptedException {
+    public void offerServiceFailed()  {
         //Given
         given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
         given(offerService.getOffer(offerId)).willThrow(new RuntimeException("Offer Service failed"));
@@ -96,7 +95,7 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
     }
 
     @Test
-    public void productServiceFailed() throws ExecutionException, InterruptedException {
+    public void productServiceFailed() {
         //Given
         given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
         given(offerService.getOffer(offerId)).willReturn(new Offer(offerId, AS_NEW));
@@ -114,7 +113,7 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
     }
 
     @Test
-    public void productServiceAndOfferServiceFailed() throws ExecutionException, InterruptedException {
+    public void productServiceAndOfferServiceFailed() {
         //Given
         given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
         given(offerService.getOffer(offerId)).willThrow(new RuntimeException("Offer Service failed"));

@@ -9,7 +9,6 @@ import com.bol.test.assignment.product.Product;
 import com.bol.test.assignment.product.ProductService;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 class AggregatorService {
     private final OrderService orderService;
@@ -22,7 +21,7 @@ class AggregatorService {
         this.productService = productService;
     }
 
-    EnrichedOrder enrich(int sellerId) throws ExecutionException, InterruptedException {
+    EnrichedOrder enrich(int sellerId) {
 
         CompletableFuture<Order> orderPromise = CompletableFuture
                 .supplyAsync(() -> orderService.getOrder(sellerId));

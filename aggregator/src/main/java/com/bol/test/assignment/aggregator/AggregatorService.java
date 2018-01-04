@@ -23,8 +23,8 @@ class AggregatorService {
 
     EnrichedOrder enrich(int sellerId) {
 
-        return retrieveOrder(sellerId).
-                thenCompose( order ->
+        return retrieveOrder(sellerId)
+                .thenCompose( order ->
                         retrieveOffer(order)
                             .thenCombine(
                                     retrieveProduct(order),

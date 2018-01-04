@@ -1,8 +1,8 @@
 package com.bol.test.assignment.product;
 
 public class Product {
-    private int id;
-    private String title;
+    private final int id;
+    private final String title;
 
     public Product(int id, String title) {
         this.id = id;

@@ -29,10 +29,11 @@ class AggregatorService {
                 thenCompose( order ->
                         retrieveOffer(order,  new Offer(-1, OfferCondition.UNKNOWN))
                             .thenCombine(
-                                    retrieveProduct(order,  new Product(1, null)),
+                                    retrieveProduct(order,  new Product(-1, null)),
                                     (offer, product) -> combine(order, offer, product)))
                 .join();
     }
+
 
     private CompletableFuture<Offer> retrieveOffer(Order order, Offer fallback) {
         return CompletableFuture

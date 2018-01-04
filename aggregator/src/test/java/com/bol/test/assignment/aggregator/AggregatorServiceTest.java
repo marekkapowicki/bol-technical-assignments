@@ -73,6 +73,7 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
         EnrichedOrderAssert.assertThat(enrichedOrder)
                 .hasId(orderId)
                 .hasOfferCondition(AS_NEW)
+                .hasProductId(productId)
                 .hasProductTitle(title);
     }
 
@@ -90,6 +91,7 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
         EnrichedOrderAssert.assertThat(enrichedOrder)
                 .hasId(orderId)
                 .hasProductTitle(title)
+                .hasProductId(productId)
                 .hasOfferId(-1)
                 .hasOfferCondition(UNKNOWN);
     }
@@ -108,6 +110,7 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
         EnrichedOrderAssert.assertThat(enrichedOrder)
                 .hasId(orderId)
                 .hasNullProductTitle()
+                .hasProductId(-1)
                 .hasOfferId(offerId)
                 .hasOfferCondition(AS_NEW);
     }
@@ -126,6 +129,7 @@ public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
         EnrichedOrderAssert.assertThat(enrichedOrder)
                 .hasId(orderId)
                 .hasNullProductTitle()
+                .hasProductId(-1)
                 .hasOfferId(-1)
                 .hasOfferCondition(UNKNOWN);
     }

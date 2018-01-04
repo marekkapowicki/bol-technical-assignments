@@ -23,30 +23,32 @@ class AggregatorService {
 
     EnrichedOrder enrich(int sellerId) {
 
-        CompletableFuture<Order> orderFuture = CompletableFuture
-                .supplyAsync(() -> orderService.getOrder(sellerId))
-                .exceptionally(throwable -> {throw new IllegalStateException("mayday");});
-
-        return orderFuture.
+        return retrieveOrder(sellerId).
                 thenCompose( order ->
-                        retrieveOffer(order,  new Offer(-1, OfferCondition.UNKNOWN))
+                        retrieveOffer(order)
                             .thenCombine(
-                                    retrieveProduct(order,  new Product(-1, null)),
+                                    retrieveProduct(order),
                                     (offer, product) -> combine(order, offer, product)))
                 .join();
     }
 
-
-    private CompletableFuture<Offer> retrieveOffer(Order order, Offer fallback) {
+    private CompletableFuture<Order> retrieveOrder(int sellerId) {
         return CompletableFuture
-                .supplyAsync(() -> offerService.getOffer(order.getOfferId()))
-                .exceptionally(throwable -> fallback);
+                .supplyAsync(() -> orderService.getOrder(sellerId))
+                .exceptionally(throwable -> {throw new IllegalStateException("mayday");});
     }
 
-    private CompletableFuture<Product> retrieveProduct(Order order, Product fallback) {
+
+    private CompletableFuture<Offer> retrieveOffer(Order order) {
+        return CompletableFuture
+                .supplyAsync(() -> offerService.getOffer(order.getOfferId()))
+                .exceptionally(throwable -> new Offer(-1, OfferCondition.UNKNOWN));
+    }
+
+    private CompletableFuture<Product> retrieveProduct(Order order) {
         return CompletableFuture
                 .supplyAsync(() -> productService.getProduct(order.getProductId()))
-                .exceptionally(throwable -> fallback);
+                .exceptionally(throwable -> new Product(-1, null));
     }
 
     private EnrichedOrder combine(Order order, Offer offer, Product product) {

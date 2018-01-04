@@ -21,7 +21,11 @@ public class AggregatorService {
     }
 
     public EnrichedOrder enrich(int sellerId) throws ExecutionException, InterruptedException {
-        return null;
+        Order order = orderService.getOrder(sellerId);
+        Offer offer = offerService.getOffer(order.getOfferId());
+        Product product = productService.getProduct(order.getProductId());
+
+        return combine(order, offer, product);
     }
 
     private EnrichedOrder combine(Order order, Offer offer, Product product) {

@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static com.bol.test.assignment.offer.OfferCondition.AS_NEW;
 import static com.bol.test.assignment.offer.OfferCondition.UNKNOWN;
@@ -55,13 +56,13 @@ public class AggregatorServiceWithAssertJTest implements WithAssertions, WithBDD
         given(orderService.getOrder(sellerId)).willReturn(new Order(orderId, offerId, productId));
         given(offerService.getOffer(offerId)).willAnswer(
                 (InvocationOnMock invocationOnMock) -> {
-                    Thread.sleep(1500);
+                    TimeUnit.MILLISECONDS.sleep(1500L);
                     return new Offer(offerId, AS_NEW);
                 }
         );
         given(productService.getProduct(productId)).willAnswer(
                 (InvocationOnMock invocationOnMock) -> {
-                    Thread.sleep(1500);
+                    TimeUnit.MILLISECONDS.sleep(1500L);
                     return new Product(productId, title);
                 }
         );

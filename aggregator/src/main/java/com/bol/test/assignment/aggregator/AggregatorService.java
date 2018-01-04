@@ -23,9 +23,11 @@ class AggregatorService {
 
     EnrichedOrder enrich(int sellerId) {
 
-        CompletableFuture<Order> orderPromise = CompletableFuture
-                .supplyAsync(() -> orderService.getOrder(sellerId));
-        return orderPromise.
+        CompletableFuture<Order> orderFuture = CompletableFuture
+                .supplyAsync(() -> orderService.getOrder(sellerId))
+                .exceptionally(throwable -> {throw new IllegalStateException("mayday");});
+
+        return orderFuture.
                 thenCompose( order ->
                         retrieveOffer(order,  new Offer(-1, OfferCondition.UNKNOWN))
                             .thenCombine(

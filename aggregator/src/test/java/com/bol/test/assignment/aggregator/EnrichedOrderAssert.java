@@ -46,7 +46,8 @@ class EnrichedOrderAssert extends AbstractAssert<EnrichedOrderAssert, EnrichedOr
     }
 
     public EnrichedOrderAssert hasNullProductTitle() {
-        isNull();
+        isNotNull();
+        Assertions.assertThat(actual.getProductTitle()).isNull();
         return this;
     }
 

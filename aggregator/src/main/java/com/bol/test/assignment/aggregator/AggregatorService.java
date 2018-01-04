@@ -1,6 +1,7 @@
 package com.bol.test.assignment.aggregator;
 
 import com.bol.test.assignment.offer.Offer;
+import com.bol.test.assignment.offer.OfferCondition;
 import com.bol.test.assignment.offer.OfferService;
 import com.bol.test.assignment.order.Order;
 import com.bol.test.assignment.order.OrderService;
@@ -27,19 +28,23 @@ class AggregatorService {
                 .supplyAsync(() -> orderService.getOrder(sellerId));
         return orderPromise.
                 thenCompose( order ->
-                        retrieveOffer(order)
-                            .thenCombine(retrieveProduct(order), (offer, product) -> combine(order, offer, product)))
+                        retrieveOffer(order,  new Offer(-1, OfferCondition.UNKNOWN))
+                            .thenCombine(
+                                    retrieveProduct(order,  new Product(1, null)),
+                                    (offer, product) -> combine(order, offer, product)))
                 .join();
     }
 
-    private CompletableFuture<Offer> retrieveOffer(Order order) {
+    private CompletableFuture<Offer> retrieveOffer(Order order, Offer fallback) {
         return CompletableFuture
-                .supplyAsync( () -> offerService.getOffer(order.getOfferId()));
+                .supplyAsync(() -> offerService.getOffer(order.getOfferId()))
+                .exceptionally(throwable -> fallback);
     }
 
-    private CompletableFuture<Product> retrieveProduct(Order order) {
+    private CompletableFuture<Product> retrieveProduct(Order order, Product fallback) {
         return CompletableFuture
-                .supplyAsync( () -> productService.getProduct(order.getProductId()));
+                .supplyAsync(() -> productService.getProduct(order.getProductId()))
+                .exceptionally(throwable -> fallback);
     }
 
     private EnrichedOrder combine(Order order, Offer offer, Product product) {

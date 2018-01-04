@@ -18,7 +18,7 @@ import static com.bol.test.assignment.offer.OfferCondition.AS_NEW;
 import static com.bol.test.assignment.offer.OfferCondition.UNKNOWN;
 
 
-public class AggregatorServiceJTest implements WithAssertions, WithBDDMockito {
+public class AggregatorServiceTest implements WithAssertions, WithBDDMockito {
     private OrderService orderService = mock(OrderService.class);
 
     private OfferService offerService = mock(OfferService.class);

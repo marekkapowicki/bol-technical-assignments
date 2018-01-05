@@ -11,6 +11,7 @@ import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
 import static com.bol.test.assignment.offer.OfferCondition.AS_NEW;
@@ -18,14 +19,6 @@ import static com.bol.test.assignment.offer.OfferCondition.UNKNOWN;
 
 
 public class AggregatorServiceAssertJTest implements WithAssertions, WithBDDMockito {
-    private OrderService orderService = mock(OrderService.class);
-
-    private OfferService offerService = mock(OfferService.class);
-
-    private ProductService productService = mock(ProductService.class);
-
-    private AggregatorService aggregatorService = new AggregatorService(orderService, offerService, productService);
-
 
     private final int sellerId = 1;
     private final int orderId = 2;
@@ -33,6 +26,13 @@ public class AggregatorServiceAssertJTest implements WithAssertions, WithBDDMock
     private final int productId = 4;
     private String title = "Title";
 
+    private OrderService orderService = mock(OrderService.class);
+
+    private OfferService offerService = mock(OfferService.class);
+
+    private ProductService productService = mock(ProductService.class);
+
+    private AggregatorService aggregatorService = new AggregatorService(orderService, offerService, productService);
 
     @Test
     public void simpleHappyFlow()  {
@@ -141,6 +141,7 @@ public class AggregatorServiceAssertJTest implements WithAssertions, WithBDDMock
 
         //Expect
         assertThatThrownBy(() -> aggregatorService.enrich(sellerId))
-                .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("the order service does not work");
     }
 }

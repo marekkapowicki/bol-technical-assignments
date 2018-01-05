@@ -27,9 +27,9 @@ class AggregatorService {
     EnrichedOrder enrich(int sellerId) {
 
         return retrieveOrder(sellerId)
-                .thenCompose( order ->
+                .thenComposeAsync( order ->
                         retrieveOffer(order)
-                            .thenCombine(
+                            .thenCombineAsync(
                                     retrieveProduct(order),
                                     (offer, product) -> combine(order, offer, product)))
                 .join();
@@ -38,7 +38,9 @@ class AggregatorService {
     private CompletableFuture<Order> retrieveOrder(int sellerId) {
         return CompletableFuture
                 .supplyAsync(() -> orderService.getOrder(sellerId), executorService)
-                .exceptionally(throwable -> {throw new IllegalStateException("mayday");});
+                .exceptionally(throwable -> {
+                    throw new IllegalStateException("the order service does not work");
+                });
     }
 
 

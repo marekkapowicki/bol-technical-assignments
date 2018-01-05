@@ -9,8 +9,11 @@ import com.bol.test.assignment.product.Product;
 import com.bol.test.assignment.product.ProductService;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class AggregatorService {
+    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
     private final OrderService orderService;
     private final OfferService offerService;
     private final ProductService productService;
@@ -34,20 +37,20 @@ class AggregatorService {
 
     private CompletableFuture<Order> retrieveOrder(int sellerId) {
         return CompletableFuture
-                .supplyAsync(() -> orderService.getOrder(sellerId))
+                .supplyAsync(() -> orderService.getOrder(sellerId), executorService)
                 .exceptionally(throwable -> {throw new IllegalStateException("mayday");});
     }
 
 
     private CompletableFuture<Offer> retrieveOffer(Order order) {
         return CompletableFuture
-                .supplyAsync(() -> offerService.getOffer(order.getOfferId()))
+                .supplyAsync(() -> offerService.getOffer(order.getOfferId()), executorService)
                 .exceptionally(throwable -> new Offer(-1, OfferCondition.UNKNOWN));
     }
 
     private CompletableFuture<Product> retrieveProduct(Order order) {
         return CompletableFuture
-                .supplyAsync(() -> productService.getProduct(order.getProductId()))
+                .supplyAsync(() -> productService.getProduct(order.getProductId()), executorService)
                 .exceptionally(throwable -> new Product(-1, null));
     }
 

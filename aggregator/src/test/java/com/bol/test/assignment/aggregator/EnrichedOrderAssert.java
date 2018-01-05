@@ -16,39 +16,32 @@ class EnrichedOrderAssert extends AbstractAssert<EnrichedOrderAssert, EnrichedOr
     }
 
     public EnrichedOrderAssert hasId(int id) {
-        isNotNull();
         Assertions.assertThat(actual.getId()).isEqualTo(id);
         return this;
     }
 
     public EnrichedOrderAssert hasOfferId(int offerId) {
-        isNotNull();
         Assertions.assertThat(actual.getOfferId()).isEqualTo(offerId);
         return this;
     }
 
     public EnrichedOrderAssert hasOfferCondition(OfferCondition offerCondition) {
-        isNotNull();
         Assertions.assertThat(actual.getOfferCondition()).isEqualTo(offerCondition);
         return this;
     }
 
     public EnrichedOrderAssert hasProductId(int productId) {
-        isNotNull();
         Assertions.assertThat(actual.getProductId()).isEqualTo(productId);
         return this;
     }
 
     public EnrichedOrderAssert hasProductTitle(String productTitle) {
-        isNotNull();
         Assertions.assertThat(actual.getProductTitle()).isEqualTo(productTitle);
         return this;
     }
 
     public EnrichedOrderAssert hasNullProductTitle() {
-        isNotNull();
         Assertions.assertThat(actual.getProductTitle()).isNull();
         return this;
     }
-
 }

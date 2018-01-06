@@ -1,0 +1,28 @@
+
+CompletableFuture was used to solve the task
+I used the
+- https://github.com/nurkiewicz/completablefuture
+- https://www.youtube.com/watch?v=-MBPQ7NIL_Y
+as a reference (Tomek is author of RXJava book).
+My solution contains only code (no loggers at all)
+
+Moreover I decide to improve the initial task
+
+I) pom.xml
+- adding properties to store all libraries versions in one place
+- adding  scope test for all libs used only in tests
+- bumping junit.version
+- replacing the maven-compiler-plugin by properties: https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-source-and-target.html
+
+II) tests
+I decided to rewritten junit tests and the AggregatorServiceWithAsserJTest was created (finally it should replace existing test)
+The result is more in TDD style (given/when/then sections) look  https://solidsoft.wordpress.com/2017/09/12/modern-tdd-oriented-java-8-junit-test-template-for-idea-with-mockito-and-assertj/
+- using assertj instead of hamcrest in assertion
+-- using fluent assertions: EnrichedOrderAssert.assertThat
+-- using assertThatThrownBy instead of @Test(expected = RuntimeException.class)
+- using BDDmockito http://static.javadoc.io/org.mockito/mockito-core/2.13.0/org/mockito/BDDMockito.html - more intutive to set mocks in given section
+- using  TimeUnit.MILLISECONDS.sleep() instead of thread sleep
+- adding assertion for productId
+III) others
+- some unused imports removed
+- making classes immutable (final properties)

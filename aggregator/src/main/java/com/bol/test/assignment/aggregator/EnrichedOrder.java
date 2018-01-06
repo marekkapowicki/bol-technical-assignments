@@ -2,12 +2,12 @@ package com.bol.test.assignment.aggregator;
 
 import com.bol.test.assignment.offer.OfferCondition;
 
-public class EnrichedOrder {
-    private int id;
-    private int offerId;
-    private OfferCondition offerCondition;
-    private int productId;
-    private String productTitle;
+class EnrichedOrder {
+    private final int id;
+    private final int offerId;
+    private final OfferCondition offerCondition;
+    private final int productId;
+    private final String productTitle;
 
     public EnrichedOrder(int id, int offerId, OfferCondition offerCondition, int productId, String productTitle) {
         this.id = id;
@@ -17,23 +17,23 @@ public class EnrichedOrder {
         this.productTitle = productTitle;
     }
 
-    public int getId() {
+    int getId() {
         return id;
     }
 
-    public int getOfferId() {
+    int getOfferId() {
         return offerId;
     }
 
-    public OfferCondition getOfferCondition() {
+    OfferCondition getOfferCondition() {
         return offerCondition;
     }
 
-    public int getProductId() {
+    int getProductId() {
         return productId;
     }
 
-    public String getProductTitle() {
+    String getProductTitle() {
         return productTitle;
     }
 }

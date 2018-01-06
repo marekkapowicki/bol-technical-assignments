@@ -15,7 +15,7 @@ import static com.bol.test.assignment.offer.OfferCondition.UNKNOWN;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 class AggregatorService {
-    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
     private final OrderService orderService;
     private final OfferService offerService;
     private final ProductService productService;
@@ -27,14 +27,11 @@ class AggregatorService {
     }
 
     EnrichedOrder enrich(int sellerId) {
-
         return retrieveOrder(sellerId)
                 .thenComposeAsync(order ->
                         retrieveOffer(order)
-                                .thenCombineAsync(
-                                        retrieveProduct(order),
-                                        (offer, product) -> combine(order, offer, product)))
-                .join();
+                                .thenCombineAsync(retrieveProduct(order),
+                                        (offer, product) -> combine(order, offer, product))).join();
     }
 
     private CompletableFuture<Order> retrieveOrder(int sellerId) {
@@ -47,14 +44,12 @@ class AggregatorService {
 
 
     private CompletableFuture<Offer> retrieveOffer(Order order) {
-        return
-                supplyAsync(() -> offerService.getOffer(order.getOfferId()), executorService)
+        return supplyAsync(() -> offerService.getOffer(order.getOfferId()), executorService)
                         .exceptionally(throwable -> new Offer(-1, UNKNOWN));
     }
 
     private CompletableFuture<Product> retrieveProduct(Order order) {
-        return
-                supplyAsync(() -> productService.getProduct(order.getProductId()), executorService)
+        return supplyAsync(() -> productService.getProduct(order.getProductId()), executorService)
                         .exceptionally(throwable -> new Product(-1, null));
     }
 
